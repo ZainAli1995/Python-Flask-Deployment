@@ -1,0 +1,53 @@
+#Install the package
+
+yum -y update
+yum -y install python3
+
+#Install the Apache server
+yum -y install httpd
+
+yum -y install epel-release
+yum -y install python3-mod_wsgi-4.7.1-2.el7.x86_64
+yum -y install mod_wsgi.x86_64
+
+#Install the dev tools
+#yum groupinstall -y "Development Tools" && yum install gcc openssl-devel bzip2-devel libffi-devel -y
+#Install the wsgi module
+#yum -y install mod_wsgi.x86_64
+
+#Make python3 default
+
+alternatives --install /usr/bin/python python /usr/bin/python2 50
+alternatives --install /usr/bin/python python /usr/bin/python3.6 60
+alternatives --config python
+
+#Workaround to fix the yum installer
+
+sed -i 's/python/python2.7/g' /usr/bin/yum
+sed -i 's/python/python2.7/g' /usr/libexec/urlgrabber-ext-down
+
+pip install --user pipenv
+
+cp -a /root/.local/bin/pipenv /usr/bin/
+
+git clone ${GIT_REPO} /var/www/
+
+mkdir -p /var/www/${NAME_OF_DIR}/.env
+
+useradd -m admin
+usermod -aG wheel admin
+
+chown -R admin:admin /var/www/${NAME_OF_DIR}/
+
+pip3.6 install pipenv==2022.4.8
+pipenv install
+
+#Activate the virtual environment using
+#app.wsgi file
+
+#Configure the apache sites manually
+#Inside the /etc/httpd/conf/conf.d create the virtual host file
+#/etc/httpd/conf.d/flask-book-library.conf
+
+#Verify the apache config using httpd -t
+#Restart the apache server
